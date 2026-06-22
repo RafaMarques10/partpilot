@@ -3,11 +3,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "PartPilot",
-  description: "CAD/CNC parametric project assistant for mechanical parts."
+  description: "CAD/CNC parametric project assistant for mechanical parts.",
 };
 
 export default function RootLayout({
-  children
+  children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {

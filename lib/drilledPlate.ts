@@ -10,7 +10,7 @@ export const defaultDrilledPlateParameters: DrilledPlateParameters = {
   marginX: 25,
   marginY: 20,
   chamfer: 1,
-  material: "Aluminio 6082-T6"
+  material: "Aluminio 6082-T6",
 };
 
 export const demoDrilledPlateParameters: DrilledPlateParameters = {
@@ -23,7 +23,7 @@ export const demoDrilledPlateParameters: DrilledPlateParameters = {
   marginX: 15,
   marginY: 15,
   chamfer: 1,
-  material: "Aluminio 6082-T6"
+  material: "Aluminio 6082-T6",
 };
 
 export function validateDrilledPlate(params: DrilledPlateParameters) {
@@ -31,16 +31,26 @@ export function validateDrilledPlate(params: DrilledPlateParameters) {
   if (params.length <= 0) errors.push("O comprimento deve ser positivo.");
   if (params.width <= 0) errors.push("A largura deve ser positiva.");
   if (params.thickness <= 0) errors.push("A espessura deve ser positiva.");
-  if (params.holeDiameter <= 0) errors.push("O diametro dos furos deve ser positivo.");
-  if (params.holesX < 1) errors.push("O numero de furos em X deve ser pelo menos 1.");
-  if (params.holesY < 1) errors.push("O numero de furos em Y deve ser pelo menos 1.");
-  if (params.marginX < params.holeDiameter / 2 || params.marginY < params.holeDiameter / 2) {
+  if (params.holeDiameter <= 0)
+    errors.push("O diametro dos furos deve ser positivo.");
+  if (params.holesX < 1)
+    errors.push("O numero de furos em X deve ser pelo menos 1.");
+  if (params.holesY < 1)
+    errors.push("O numero de furos em Y deve ser pelo menos 1.");
+  if (
+    params.marginX < params.holeDiameter / 2 ||
+    params.marginY < params.holeDiameter / 2
+  ) {
     errors.push("As margens devem ser maiores que o raio do furo.");
   }
-  if (params.marginX * 2 >= params.length) errors.push("A margem X ocupa todo o comprimento da placa.");
-  if (params.marginY * 2 >= params.width) errors.push("A margem Y ocupa toda a largura da placa.");
+  if (params.marginX * 2 >= params.length)
+    errors.push("A margem X ocupa todo o comprimento da placa.");
+  if (params.marginY * 2 >= params.width)
+    errors.push("A margem Y ocupa toda a largura da placa.");
   if (params.chamfer < 0 || params.chamfer > params.thickness / 3) {
-    errors.push("O chanfro deve ser positivo e menor que um terco da espessura.");
+    errors.push(
+      "O chanfro deve ser positivo e menor que um terco da espessura.",
+    );
   }
   return errors;
 }
@@ -55,13 +65,22 @@ export function getDrilledPlateCadSteps(params: DrilledPlateParameters) {
     params.chamfer > 0
       ? `Aplicar chanfro de ${params.chamfer} mm no contorno exterior e nas entradas dos furos.`
       : "Sem chanfro solicitado; apenas remover rebarbas no acabamento.",
-    "Atribuir material, verificar propriedades fisicas e guardar o ficheiro."
+    "Atribuir material, verificar propriedades fisicas e guardar o ficheiro.",
   ];
 }
 
-export function getDrilledPlateInventorScript(params: DrilledPlateParameters, projectName: string) {
-  const pitchX = params.holesX > 1 ? (params.length - params.marginX * 2) / (params.holesX - 1) : 0;
-  const pitchY = params.holesY > 1 ? (params.width - params.marginY * 2) / (params.holesY - 1) : 0;
+export function getDrilledPlateInventorScript(
+  params: DrilledPlateParameters,
+  projectName: string,
+) {
+  const pitchX =
+    params.holesX > 1
+      ? (params.length - params.marginX * 2) / (params.holesX - 1)
+      : 0;
+  const pitchY =
+    params.holesY > 1
+      ? (params.width - params.marginY * 2) / (params.holesY - 1)
+      : 0;
   const chamferBlock =
     params.chamfer > 0
       ? `
@@ -115,7 +134,6 @@ transientGeometry = ThisApplication.TransientGeometry
 Dim baseSketch As PlanarSketch
 baseSketch = partDef.Sketches.Add(partDef.WorkPlanes.Item(3))
 
-Dim p1 As Point2d = transientGeometry.CreatePoint2d(-halfLengthCm, -halfWidthCm)
 Dim p2 As Point2d = transientGeometry.CreatePoint2d(halfLengthCm, halfWidthCm)
 baseSketch.SketchLines.AddAsTwoPointCenteredRectangle(transientGeometry.CreatePoint2d(0, 0), p2)
 
@@ -158,7 +176,9 @@ MessageBox.Show("Drilled plate created: " & plateLengthMm & " x " & plateWidthMm
 `;
 }
 
-export function getDrilledPlateCncPlan(params: DrilledPlateParameters): CncOperation[] {
+export function getDrilledPlateCncPlan(
+  params: DrilledPlateParameters,
+): CncOperation[] {
   const operations: CncOperation[] = [
     {
       id: "op10",
@@ -166,8 +186,9 @@ export function getDrilledPlateCncPlan(params: DrilledPlateParameters): CncOpera
       operation: "Facear materia-prima",
       tool: "Fresa de facear OD40",
       strategy: `Facear a primeira face e preparar espessura bruta para acabamento a ${params.thickness} mm.`,
-      notes: "Confirmar apoio plano e limpar rebarbas antes de virar, se necessario.",
-      estimatedMinutes: 7
+      notes:
+        "Confirmar apoio plano e limpar rebarbas antes de virar, se necessario.",
+      estimatedMinutes: 7,
     },
     {
       id: "op20",
@@ -176,7 +197,7 @@ export function getDrilledPlateCncPlan(params: DrilledPlateParameters): CncOpera
       tool: "Fresa topo OD10",
       strategy: `Desbastar e acabar contorno ${params.length} x ${params.width} mm.`,
       notes: "Usar tabs ou mordentes adequados conforme fixacao.",
-      estimatedMinutes: 10
+      estimatedMinutes: 10,
     },
     {
       id: "op30",
@@ -185,8 +206,8 @@ export function getDrilledPlateCncPlan(params: DrilledPlateParameters): CncOpera
       tool: `Broca OD${params.holeDiameter} mm`,
       strategy: `${params.holesX * params.holesY} furos em grelha ${params.holesX} x ${params.holesY}, margens ${params.marginX}/${params.marginY} mm.`,
       notes: "Usar ciclo G81/G83 conforme material e profundidade.",
-      estimatedMinutes: Math.max(8, params.holesX * params.holesY)
-    }
+      estimatedMinutes: Math.max(8, params.holesX * params.holesY),
+    },
   ];
 
   if (params.chamfer > 0) {
@@ -197,7 +218,7 @@ export function getDrilledPlateCncPlan(params: DrilledPlateParameters): CncOpera
       tool: `Fresa de chanfro 90 deg / ${params.chamfer} mm`,
       strategy: `Aplicar chanfro ${params.chamfer} mm no contorno exterior e entradas dos furos.`,
       notes: "Inspecionar rebarbas nas duas faces.",
-      estimatedMinutes: 8
+      estimatedMinutes: 8,
     });
   }
 
@@ -207,10 +228,21 @@ export function getDrilledPlateCncPlan(params: DrilledPlateParameters): CncOpera
 export function getDrilledPlateSetupSheetRows(params: DrilledPlateParameters) {
   return [
     ["Material", params.material],
-    ["Dimensao final", `${params.length} x ${params.width} x ${params.thickness} mm`],
-    ["Padrao de furos", `${params.holesX} x ${params.holesY} furos OD${params.holeDiameter} mm`],
+    [
+      "Dimensao final",
+      `${params.length} x ${params.width} x ${params.thickness} mm`,
+    ],
+    [
+      "Padrao de furos",
+      `${params.holesX} x ${params.holesY} furos OD${params.holeDiameter} mm`,
+    ],
     ["Margens", `X ${params.marginX} mm / Y ${params.marginY} mm`],
-    ["Acabamento", params.chamfer > 0 ? `Chanfro ${params.chamfer} mm e rebarba removida` : "Rebarba removida"]
+    [
+      "Acabamento",
+      params.chamfer > 0
+        ? `Chanfro ${params.chamfer} mm e rebarba removida`
+        : "Rebarba removida",
+    ],
   ];
 }
 

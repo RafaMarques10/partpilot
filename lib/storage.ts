@@ -17,7 +17,8 @@ export function loadProjects(): Project[] {
 export function saveProject(project: Project) {
   const projects = loadProjects();
   const index = projects.findIndex((item) => item.id === project.id);
-  const next = index >= 0 ? projects.with(index, project) : [project, ...projects];
+  const next =
+    index >= 0 ? projects.with(index, project) : [project, ...projects];
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   return next;
 }

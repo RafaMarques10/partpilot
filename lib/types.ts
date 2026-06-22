@@ -1,4 +1,8 @@
-export type PartType = "flange" | "drilled-plate" | "l-bracket" | "simple-shaft";
+export type PartType =
+  | "flange"
+  | "drilled-plate"
+  | "l-bracket"
+  | "simple-shaft";
 
 export type ProjectStatus = "draft" | "ready";
 

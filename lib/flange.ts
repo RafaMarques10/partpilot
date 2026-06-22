@@ -9,7 +9,7 @@ export const defaultFlangeParameters: FlangeParameters = {
   boltCount: 6,
   chamfer: 1,
   material: "Aluminio 6082-T6",
-  stockAllowance: 2
+  stockAllowance: 2,
 };
 
 export const demoFlangeParameters: FlangeParameters = {
@@ -21,27 +21,41 @@ export const demoFlangeParameters: FlangeParameters = {
   boltCount: 6,
   chamfer: 1,
   material: "Aluminio 6082-T6",
-  stockAllowance: 2
+  stockAllowance: 2,
 };
 
 export function validateFlange(params: FlangeParameters) {
   const errors: string[] = [];
-  if (params.outerDiameter <= 0) errors.push("O diametro exterior deve ser positivo.");
-  if (params.innerDiameter <= 0) errors.push("O diametro interior deve ser positivo.");
+  if (params.outerDiameter <= 0)
+    errors.push("O diametro exterior deve ser positivo.");
+  if (params.innerDiameter <= 0)
+    errors.push("O diametro interior deve ser positivo.");
   if (params.thickness <= 0) errors.push("A espessura deve ser positiva.");
-  if (params.boltHoleDiameter <= 0) errors.push("O diametro dos furos deve ser positivo.");
-  if (params.boltCount < 3) errors.push("A flange precisa de pelo menos 3 furos.");
+  if (params.boltHoleDiameter <= 0)
+    errors.push("O diametro dos furos deve ser positivo.");
+  if (params.boltCount < 3)
+    errors.push("A flange precisa de pelo menos 3 furos.");
   if (params.innerDiameter >= params.outerDiameter) {
     errors.push("O furo central tem de ser menor que o diametro exterior.");
   }
-  if (params.boltCircleDiameter >= params.outerDiameter - params.boltHoleDiameter) {
-    errors.push("O circulo de furacao deixa os furos demasiado perto do bordo exterior.");
+  if (
+    params.boltCircleDiameter >=
+    params.outerDiameter - params.boltHoleDiameter
+  ) {
+    errors.push(
+      "O circulo de furacao deixa os furos demasiado perto do bordo exterior.",
+    );
   }
-  if (params.boltCircleDiameter <= params.innerDiameter + params.boltHoleDiameter) {
+  if (
+    params.boltCircleDiameter <=
+    params.innerDiameter + params.boltHoleDiameter
+  ) {
     errors.push("O circulo de furacao invade a zona do furo central.");
   }
   if (params.chamfer < 0 || params.chamfer > params.thickness / 3) {
-    errors.push("O chanfro deve ser positivo e menor que um terco da espessura.");
+    errors.push(
+      "O chanfro deve ser positivo e menor que um terco da espessura.",
+    );
   }
   return errors;
 }
@@ -54,11 +68,14 @@ export function getFlangeCadSteps(params: FlangeParameters) {
     `Criar um novo sketch na face frontal e desenhar uma circunferencia de construcao PCD ${params.boltCircleDiameter} mm para o circulo de furacao.`,
     `Colocar um furo ${params.boltHoleDiameter} mm sobre o circulo de construcao e aplicar padrao circular com ${params.boltCount} ocorrencias em torno do eixo central.`,
     `Aplicar chanfro de ${params.chamfer} mm nas duas arestas exteriores, nas arestas do furo central e nas entradas dos furos de fixacao.`,
-    "Atribuir material, verificar massa/propriedades fisicas e guardar o ficheiro com o nome do projeto."
+    "Atribuir material, verificar massa/propriedades fisicas e guardar o ficheiro com o nome do projeto.",
   ];
 }
 
-export function getFlangeInventorScript(params: FlangeParameters, projectName: string) {
+export function getFlangeInventorScript(
+  params: FlangeParameters,
+  projectName: string,
+) {
   const chamferBlock =
     params.chamfer > 0
       ? `
@@ -164,7 +181,7 @@ export function getFlangeCncPlan(params: FlangeParameters): CncOperation[] {
       tool: "Fresa de facear OD40 ou ferramenta de faceamento",
       strategy: `Facear ate espessura bruta controlada (${stockThickness.toFixed(1)} mm antes do acabamento).`,
       notes: "Garantir paralelismo da primeira face antes de virar a peca.",
-      estimatedMinutes: 6
+      estimatedMinutes: 6,
     },
     {
       id: "op20",
@@ -173,7 +190,7 @@ export function getFlangeCncPlan(params: FlangeParameters): CncOperation[] {
       tool: "Fresa topo OD10 ou ferramenta de torneamento exterior",
       strategy: `Desbastar e acabar OD${params.outerDiameter} mm a partir de stock OD${stockDiameter.toFixed(1)} mm.`,
       notes: "Usar passes leves no acabamento para circularidade.",
-      estimatedMinutes: 9
+      estimatedMinutes: 9,
     },
     {
       id: "op30",
@@ -182,7 +199,7 @@ export function getFlangeCncPlan(params: FlangeParameters): CncOperation[] {
       tool: "Broca piloto + mandriladora/fresa topo OD8",
       strategy: `Interpolar ou mandrilar o furo central ate ID${params.innerDiameter} mm.`,
       notes: "Medir diametro interno antes do passe final.",
-      estimatedMinutes: 12
+      estimatedMinutes: 12,
     },
     {
       id: "op40",
@@ -191,7 +208,7 @@ export function getFlangeCncPlan(params: FlangeParameters): CncOperation[] {
       tool: `Broca OD${params.boltHoleDiameter} mm`,
       strategy: `${params.boltCount} furos igualmente espacados em PCD ${params.boltCircleDiameter} mm.`,
       notes: "Usar ciclo G81/G83 conforme profundidade e material.",
-      estimatedMinutes: Math.max(8, params.boltCount * 2)
+      estimatedMinutes: Math.max(8, params.boltCount * 2),
     },
     {
       id: "op50",
@@ -200,19 +217,25 @@ export function getFlangeCncPlan(params: FlangeParameters): CncOperation[] {
       tool: `Fresa de chanfro 90 deg / chanfrador ${params.chamfer} mm`,
       strategy: `Acabar espessura ${params.thickness} mm e chanfrar arestas ${params.chamfer} mm.`,
       notes: "Quebrar arestas dos furos e validar rebarbas.",
-      estimatedMinutes: 10
-    }
+      estimatedMinutes: 10,
+    },
   ];
 }
 
 export function getSetupSheetRows(params: FlangeParameters) {
   return [
     ["Material", params.material],
-    ["Stock recomendado", `OD${params.outerDiameter + params.stockAllowance * 2} x ${(params.thickness + params.stockAllowance).toFixed(1)} mm`],
+    [
+      "Stock recomendado",
+      `OD${params.outerDiameter + params.stockAllowance * 2} x ${(params.thickness + params.stockAllowance).toFixed(1)} mm`,
+    ],
     ["Dimensao final", `OD${params.outerDiameter} x ${params.thickness} mm`],
     ["Furo central", `ID${params.innerDiameter} mm`],
-    ["Padrao de furos", `${params.boltCount}x OD${params.boltHoleDiameter} em PCD ${params.boltCircleDiameter} mm`],
-    ["Acabamento", `Chanfro ${params.chamfer} mm e rebarba removida`]
+    [
+      "Padrao de furos",
+      `${params.boltCount}x OD${params.boltHoleDiameter} em PCD ${params.boltCircleDiameter} mm`,
+    ],
+    ["Acabamento", `Chanfro ${params.chamfer} mm e rebarba removida`],
   ];
 }
 
@@ -224,7 +247,7 @@ Setup: ${operation.setup}
 Ferramenta: ${operation.tool}
 Estrategia: ${operation.strategy}
 Notas: ${operation.notes}
-Tempo estimado: ${operation.estimatedMinutes} min`
+Tempo estimado: ${operation.estimatedMinutes} min`,
     )
     .join("\n\n");
 }

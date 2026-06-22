@@ -4,7 +4,7 @@ const config: Config = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./lib/**/*.{js,ts,jsx,tsx,mdx}"
+    "./lib/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -13,14 +13,14 @@ const config: Config = {
         steel: "#334155",
         coolant: "#00a7b5",
         signal: "#f5b700",
-        oxide: "#d6502a"
+        oxide: "#d6502a",
       },
       boxShadow: {
-        panel: "0 16px 45px rgba(15, 23, 42, 0.10)"
-      }
-    }
+        panel: "0 16px 45px rgba(15, 23, 42, 0.10)",
+      },
+    },
   },
-  plugins: []
+  plugins: [],
 };
 
 export default config;
